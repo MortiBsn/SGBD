@@ -8,9 +8,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-//import org.json.simple.parser.JSONParser;
-//import org.json.simple.parser.ParseException;
-//import com.fasterxml.jackson.d
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -37,8 +34,19 @@ public class IG extends javax.swing.JFrame {
     private JPanel Graphique;
     private static int id ;
 
+    private Vecteur V = new Vecteur();
     private JFreeChart jfc;
+    private XYDataset dataset;
 
+    TimeSeries seriesAccX = new TimeSeries("AccX");
+    TimeSeries seriesAccY = new TimeSeries("AccY");
+    TimeSeries seriesAccZ = new TimeSeries("AccZ");
+    TimeSeries seriesGyrox = new TimeSeries("Gyrox");
+    TimeSeries seriesGyroy = new TimeSeries("Gyroy");
+    TimeSeries seriesGyroz = new TimeSeries("Gyroz");
+    List<Voiture> dataObjects = new ArrayList<>();
+
+    int pos=0;
 
     public IG()
     {
@@ -50,8 +58,27 @@ public class IG extends javax.swing.JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Defiler.addActionListener(actionListener);
-
         Graphique.setLayout(new FlowLayout());
+        defiler1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Mettre à jour la plage d'affichage de 10 en 10
+                dataset=Ajouter();
+                jfc = ChartFactory.createTimeSeriesChart(
+                        "Graphique",
+                        "Timestamp", // x
+                        "valeur", // y
+                        dataset,
+                        false, false, false
+                );
+
+                ChartPanel cp = new ChartPanel(jfc);
+                Graphique.add(cp);
+                Graphique.revalidate();
+                Graphique.repaint();
+
+            }
+        });
 
 
         Timestamp.addActionListener(new ActionListener()
@@ -60,7 +87,7 @@ public class IG extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent e)
             {
                 id=Integer.parseInt(textField1.getText());
-                final XYDataset dataset = testGET();
+                dataset = testGET();
                 jfc = ChartFactory.createTimeSeriesChart(
                         "Graphique",
                         "Timestamp", // x
@@ -68,8 +95,8 @@ public class IG extends javax.swing.JFrame {
                         dataset,
                         false, false, false
                 );
-                ChartPanel cp = new ChartPanel(jfc);
 
+                ChartPanel cp = new ChartPanel(jfc);
                 Graphique.add(cp);
                 Graphique.revalidate();
                 Graphique.repaint();
@@ -112,10 +139,6 @@ public class IG extends javax.swing.JFrame {
             System.out.println("Error in  getting details : " + e);
         }
         String reponse=result.toString();
-        // Créer un tableau pour stocker les objets
-        List<Voiture> dataObjects = new ArrayList<>();
-        //JSONParser parser = new JSONParser();
-        //System.out.println(reponse);
 
         // Analyser la réponse JSON
         JSONObject jsonResponse = new JSONObject(reponse);
@@ -139,58 +162,63 @@ public class IG extends javax.swing.JFrame {
             // Ajouter l'objet à la liste
             dataObjects.add(voiture);
         }
-        System.out.println(dataObjects);
+        /*
+        Voiture v = new Voiture();
+        v=dataObjects.get(dataObjects.size()-1);
+        System.out.println(v.getAccx());*/
+        // c"tait un test pour savoir si je récupérais les bonnes valeurs
 
-        TimeSeries seriesAccX = new TimeSeries("AccX");
-        TimeSeries seriesAccY = new TimeSeries("AccY");
-        TimeSeries seriesAccZ = new TimeSeries("AccZ");
-        TimeSeries seriesGyrox = new TimeSeries("Gyrox");
-        TimeSeries seriesGyroy = new TimeSeries("Gyroy");
-        TimeSeries seriesGyroz = new TimeSeries("Gyroz");
-        TimeSeries seriesClass = new TimeSeries("Class");
-        TimeSeries seriesTimestamp = new TimeSeries("Timestamp");
+        dataset=Ajouter();
+        return dataset;
 
-        Double[] VaccX = new Double[125];
-        Double[] VaccY = new Double[125];
-        Double[] VaccZ = new Double[125];
-        Double[] VGyrox = new Double[125];
-        Double[] VGyroy = new Double[125];
-        Double[] VGyroz = new Double[125];
-        String[] VClass = new String[125];
-        int[] VTimestamp = new int [125];
+    }
+
+    public XYDataset Ajouter(){
+
         Second current = new Second( );
-        for (int i=0; i<dataObjects.size();i++)
+        int i=0;
+        for (i=pos; i<pos+10 && i<dataObjects.size();i++)
         {
-            VaccX[i]=dataObjects.get(i).getAccx();
-            VaccY[i] = dataObjects.get(i).getAccy();
-            VaccZ[i] = dataObjects.get(i).getAccz();
-            VGyrox[i] = dataObjects.get(i).getGyrox();
-            VGyroy[i] = dataObjects.get(i).getGyroy();
-            VGyroz[i] = dataObjects.get(i).getGyroz();
-            VClass[i] = dataObjects.get(i).getMyClass();
-            VTimestamp[i] = dataObjects.get(i).getTimestamp();
+            V.VaccX[i]=dataObjects.get(i).getAccx();
+            V.VaccY[i] = dataObjects.get(i).getAccy();
+            V.VaccZ[i] = dataObjects.get(i).getAccz();
+            V.VGyrox[i] = dataObjects.get(i).getGyrox();
+            V.VGyroy[i] = dataObjects.get(i).getGyroy();
+            V.VGyroz[i] = dataObjects.get(i).getGyroz();
 
-            seriesAccX.add(current, VaccX[i]);
-            /*seriesAccY.add(new Second(new Date(VTimestamp[i] * 1000)), VaccY[i]);
-            seriesAccZ.add(new Second(new Date(VTimestamp[i] * 1000)), VaccZ[i]);
-            seriesGyrox.add(new Second(new Date(VTimestamp[i] * 1000)), VGyrox[i]);
-            seriesGyroy.add(new Second(new Date(VTimestamp[i] * 1000)), VGyroy[i]);
-            seriesGyroz.add(new Second(new Date(VTimestamp[i] * 1000)), VGyroz[i]);*/
+            seriesAccX.addOrUpdate(current, V.VaccX[i]);
+            seriesAccY.addOrUpdate(current, V.VaccY[i]);
+            seriesAccZ.addOrUpdate(current, V.VaccZ[i]);
+            seriesGyrox.addOrUpdate(current, V.VGyrox[i]);
+            seriesGyroy.addOrUpdate(current, V.VGyroy[i]);
+            seriesGyroz.addOrUpdate(current, V.VGyroz[i]);
             current = ( Second ) current.next( );
 
         }
         TimeSeriesCollection dataset = new TimeSeriesCollection();
-        dataset.addSeries(seriesAccX);
-        return dataset;
-        /*dataset.addSeries(seriesAccY);
-        dataset.addSeries(seriesAccZ);
-        dataset.addSeries(seriesGyrox);
-        dataset.addSeries(seriesGyroy);
-        dataset.addSeries(seriesGyroz);
-        dataset.addSeries(seriesClass);
-        dataset.addSeries(seriesTimestamp);*/
+        if(AccX.isSelected())
+            dataset.addSeries(seriesAccX);
 
+        if (AccY.isSelected())
+            dataset.addSeries(seriesAccY);
+
+        if(AccZ.isSelected())
+            dataset.addSeries(seriesAccZ);
+
+        if(GyroX.isSelected())
+            dataset.addSeries(seriesGyrox);
+
+        if(GyroY.isSelected())
+            dataset.addSeries(seriesGyroy);
+
+        if(GyroZ.isSelected())
+            dataset.addSeries(seriesGyroz);
+
+        pos = i;
+        return dataset;
     }
+
+
     public static void main (String[] args){
         IG frame= new IG();
         frame.setVisible(true);

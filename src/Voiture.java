@@ -12,6 +12,9 @@ public class Voiture {
     int Timestamp;
 
     //initialisation
+    public Voiture (){
+
+    }
     public Voiture(double accx, double accy, double accz, double gyrox, double gyroy, double gyroz, String myClass, int timestamp) {
         this.accx = accx;
         this.accy = accy;
