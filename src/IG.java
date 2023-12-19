@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -100,10 +101,15 @@ public class IG extends javax.swing.JFrame {
 
                 System.out.println("Button clicked: Save");
                 try{
-                    
-                    byte[] chartBytes = ConvertChartToBytes(jfc);
+
+
                     //on convertit notre JFC en byte
-                    String encoded = Base64.getEncoder().encodeToString(chartBytes);
+
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    ChartUtils.writeChartAsPNG(bos, jfc,800,600);
+                    byte[] byteArray= bos.toByteArray();
+
+                    String encoded = Base64.getEncoder().encodeToString(byteArray);
                     //System.out.println(encoded);
                     JSONObject json = new JSONObject();
                     String Jugement ="test";
@@ -132,12 +138,12 @@ public class IG extends javax.swing.JFrame {
                     {
                         System.out.println(line);
                     }
-                        rd.close();
-                    }
-                    catch (IOException ex)
-                    {
-                        throw new RuntimeException(ex);
-                    }
+                    rd.close();
+                }
+                catch (IOException ex)
+                {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -288,18 +294,7 @@ public class IG extends javax.swing.JFrame {
         return dataset;
     }
 
-    private static byte[] ConvertChartToBytes(JFreeChart chart) {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
 
-            oos.writeObject(chart);
-            return bos.toByteArray();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
 
     public static void main (String[] args){
@@ -309,5 +304,3 @@ public class IG extends javax.swing.JFrame {
 
 
 }
-
-
