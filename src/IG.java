@@ -1,17 +1,21 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Base64;
 import java.util.List;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -32,6 +36,7 @@ public class IG extends javax.swing.JFrame {
     private JCheckBox AccY;
     private JCheckBox AccZ;
     private JPanel Graphique;
+    private JButton Save;
     private static int id ;
 
     private Vecteur V = new Vecteur();
@@ -72,14 +77,69 @@ public class IG extends javax.swing.JFrame {
                         false, false, false
                 );
 
+                /*XYPlot plot = jfc.getXYPlot();
+                NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
+                rangeAxis.setRange(-3.0,3);*/
+
                 ChartPanel cp = new ChartPanel(jfc);
+
                 Graphique.add(cp);
                 Graphique.revalidate();
                 Graphique.repaint();
+                Graphique.setLayout(new BorderLayout());
+                Graphique.removeAll();
+                Graphique.add(cp,BorderLayout.CENTER);
+                Graphique.validate();
 
             }
         });
 
+        Save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                System.out.println("Button clicked: Save");
+                try{
+                    
+                    byte[] chartBytes = ConvertChartToBytes(jfc);
+                    //on convertit notre JFC en byte
+                    String encoded = Base64.getEncoder().encodeToString(chartBytes);
+                    //System.out.println(encoded);
+                    JSONObject json = new JSONObject();
+                    String Jugement ="test";
+                    json.put("jugement",Jugement);
+                    json.put("image", encoded);
+
+                    String urlParameters = json.toString();
+                    byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8 );
+                    int postDataLength = postData.length;
+                    URL url = new URL("http://192.168.195.135:8080/ords/hr/labo/blob");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setDoOutput(true);
+                    conn.setInstanceFollowRedirects(false);
+                    conn.setRequestMethod("POST"); //Verbe POST
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty("charset", "utf-8");
+                    conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+                    conn.setUseCaches(false);
+
+                    DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                    wr.write(postData);
+
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    String line;
+                    while ((line = rd.readLine()) != null)
+                    {
+                        System.out.println(line);
+                    }
+                        rd.close();
+                    }
+                    catch (IOException ex)
+                    {
+                        throw new RuntimeException(ex);
+                    }
+            }
+        });
 
         Timestamp.addActionListener(new ActionListener()
         {
@@ -96,10 +156,20 @@ public class IG extends javax.swing.JFrame {
                         false, false, false
                 );
 
-                ChartPanel cp = new ChartPanel(jfc);
+                XYPlot plot = jfc.getXYPlot();
+                NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
+                rangeAxis.setRange(-3.0,3);
+
+                /*ChartPanel cp = new ChartPanel(jfc);
                 Graphique.add(cp);
                 Graphique.revalidate();
-                Graphique.repaint();
+                Graphique.repaint();*/
+                ChartPanel cp = new ChartPanel(jfc);
+
+                Graphique.setLayout(new BorderLayout());
+                Graphique.removeAll();
+                Graphique.add(cp,BorderLayout.CENTER);
+                Graphique.validate();
             }
         });
 
@@ -216,6 +286,19 @@ public class IG extends javax.swing.JFrame {
 
         pos = i;
         return dataset;
+    }
+
+    private static byte[] ConvertChartToBytes(JFreeChart chart) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+
+            oos.writeObject(chart);
+            return bos.toByteArray();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
