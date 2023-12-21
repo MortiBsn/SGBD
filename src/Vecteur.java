@@ -1,10 +1,12 @@
 public class Vecteur {
-    Double[] VaccX = new Double[125];
-    Double[] VaccY = new Double[125];
-    Double[] VaccZ = new Double[125];
-    Double[] VGyrox = new Double[125];
-    Double[] VGyroy = new Double[125];
-    Double[] VGyroz = new Double[125];
+    Double[] VaccX = new Double[8000];
+    Double[] VaccY = new Double[8000];
+    Double[] VaccZ = new Double[8000];
+    Double[] VGyrox = new Double[8000];
+    Double[] VGyroy = new Double[8000];
+    Double[] VGyroz = new Double[8000];
+
+    String[] VString = new String[8000];
 
 
     public Vecteur() {
@@ -15,6 +17,7 @@ public class Vecteur {
             VGyrox[i] = 0.0;
             VGyroy[i] = 0.0;
             VGyroz[i] = 0.0;
+            VString[i]="null";
         }
 
     }

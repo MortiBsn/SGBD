@@ -3,8 +3,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -26,6 +24,8 @@ import org.json.JSONArray;
 
 public class IG extends javax.swing.JFrame {
     private JPanel panel1;
+    histogram histogramFrame;
+
     private JButton Timestamp;
     private JButton defiler1;
     private JPanel Fenetre_Haut;
@@ -38,6 +38,9 @@ public class IG extends javax.swing.JFrame {
     private JCheckBox AccZ;
     private JPanel Graphique;
     private JButton Save;
+    private JCheckBox Jugement;
+    private JButton Histogram;
+
     private static int id ;
 
     private Vecteur V = new Vecteur();
@@ -57,7 +60,8 @@ public class IG extends javax.swing.JFrame {
     public IG()
     {
         textField1.setText("3581700");
-
+        Jugement.setVisible(false);
+        Histogram.setVisible(false);
         this.setContentPane(panel1);
         setSize(800,600);
         setContentPane(panel1);
@@ -78,9 +82,9 @@ public class IG extends javax.swing.JFrame {
                         false, false, false
                 );
 
-                /*XYPlot plot = jfc.getXYPlot();
+                XYPlot plot = jfc.getXYPlot();
                 NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
-                rangeAxis.setRange(-3.0,3);*/
+                rangeAxis.setRange(-3.0,3);
 
                 ChartPanel cp = new ChartPanel(jfc);
 
@@ -95,6 +99,8 @@ public class IG extends javax.swing.JFrame {
             }
         });
 
+        ////////////////////////////////////////////////////
+        //sauvegarder l'image//
         Save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -108,14 +114,21 @@ public class IG extends javax.swing.JFrame {
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     ChartUtils.writeChartAsPNG(bos, jfc,800,600);
                     byte[] byteArray= bos.toByteArray();
-
+                    String jugement;
                     String encoded = Base64.getEncoder().encodeToString(byteArray);
                     //System.out.println(encoded);
                     JSONObject json = new JSONObject();
-                    String Jugement ="test";
-                    json.put("jugement",Jugement);
-                    json.put("image", encoded);
+                    if(Jugement.isSelected())
+                    {
+                        jugement="DROIT";
+                    }
+                    else
+                        jugement="TORT";
+                    String timestamp= textField1.getText();
 
+                    json.put("jugement",jugement);
+                    json.put("timestamp",timestamp);
+                    json.put("image", encoded);
                     String urlParameters = json.toString();
                     byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8 );
                     int postDataLength = postData.length;
@@ -147,13 +160,34 @@ public class IG extends javax.swing.JFrame {
             }
         });
 
+        /////////////////////////////////
+        //Histograme
+        Histogram.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (histogramFrame == null) {
+                    histogramFrame = new histogram();
+                    histogramFrame.setTitle("Histogram");
+                }
+                histogramFrame.setSeries(dataObjects);
+                histogramFrame.ConstructionHistograme();
+                // Rendre la fenêtre histogram visible
+                histogramFrame.setVisible(true);
+
+            }
+        });
+        /////////////////////////////////////////////////////
+        // VALIDER TIMESTAMP//////////////////
         Timestamp.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
+                Jugement.setVisible(true);
                 id=Integer.parseInt(textField1.getText());
                 dataset = testGET();
+                Histogram.setVisible(true);
                 jfc = ChartFactory.createTimeSeriesChart(
                         "Graphique",
                         "Timestamp", // x
@@ -271,6 +305,9 @@ public class IG extends javax.swing.JFrame {
             current = ( Second ) current.next( );
 
         }
+        //ici on va supprimer tout les ifs on va juste séparer gyro et acc
+
+
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         if(AccX.isSelected())
             dataset.addSeries(seriesAccX);
@@ -300,7 +337,7 @@ public class IG extends javax.swing.JFrame {
     public static void main (String[] args){
         IG frame= new IG();
         frame.setVisible(true);
+        frame.setTitle("Mortimer + flo les bots");
     }
-
 
 }
