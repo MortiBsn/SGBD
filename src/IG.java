@@ -61,7 +61,8 @@ public class IG extends javax.swing.JFrame {
     {
         textField1.setText("3581700");
         Jugement.setVisible(false);
-        Histogram.setVisible(false);
+        Save.setVisible(false);
+        Histogram.setVisible(true);
         this.setContentPane(panel1);
         setSize(800,600);
         setContentPane(panel1);
@@ -79,7 +80,7 @@ public class IG extends javax.swing.JFrame {
                         "Timestamp", // x
                         "valeur", // y
                         dataset,
-                        false, false, false
+                        true, false, false
                 );
 
                 XYPlot plot = jfc.getXYPlot();
@@ -185,6 +186,7 @@ public class IG extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent e)
             {
                 Jugement.setVisible(true);
+                Save.setVisible(true);
                 id=Integer.parseInt(textField1.getText());
                 dataset = testGET();
                 Histogram.setVisible(true);
@@ -193,7 +195,7 @@ public class IG extends javax.swing.JFrame {
                         "Timestamp", // x
                         "valeur", // y
                         dataset,
-                        false, false, false
+                        true, false, false
                 );
 
                 XYPlot plot = jfc.getXYPlot();

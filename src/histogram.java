@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -10,16 +12,18 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.xy.IntervalXYDataset;
-import org.jfree.data.xy.XYDataset;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class histogram extends javax.swing.JFrame{
     private JPanel non;
     private JPanel histogr;
+    private JButton Suivant;
     private TimeSeries seriesAccX;
     private TimeSeries seriesAccY;
     private TimeSeries seriesAccZ;
@@ -27,13 +31,45 @@ public class histogram extends javax.swing.JFrame{
     private TimeSeries seriesGyroy;
     private TimeSeries seriesGyroz;
     private Vecteur V = new Vecteur();
-    /*private XYDataset dataset;
-    private XYDataset dataset2;
-    private XYDataset dataset3;*/
+    double[] valueAXslow = new double[8000];
+    double[] valueAXnormal = new double[8000];
+    double[] valueAXaggresive = new double[8000];
+    double[] valueAYslow = new double[8000];
+    double[] valueAYnormal = new double[8000];
+    double[] valueAYaggresive = new double[8000];
+    double[] valueAZslow = new double[8000];
+    double[] valueAZnormal = new double[8000];
+    double[] valueAZaggresive = new double[8000];
+    double[] valueGXslow = new double[8000];
+    double[] valueGXnormal = new double[8000];
+    double[] valueGXaggresive = new double[8000];
+    double[] valueGYslow = new double[8000];
+    double[] valueGYnormal = new double[8000];
+    double[] valueGYaggresive = new double[8000];
+    double[] valueGZslow = new double[8000];
+    double[] valueGZnormal = new double[8000];
+    double[] valueGZaggresive = new double[8000];
+    private int compteur =0;
+
 
     HistogramDataset dataset = new HistogramDataset();
     HistogramDataset dataset2 = new HistogramDataset();
     HistogramDataset dataset3 = new HistogramDataset();
+    HistogramDataset dataset4 = new HistogramDataset();
+    HistogramDataset dataset5 = new HistogramDataset();
+    HistogramDataset dataset6 = new HistogramDataset();
+    HistogramDataset dataset7 = new HistogramDataset();
+    HistogramDataset dataset8 = new HistogramDataset();
+    HistogramDataset dataset9 = new HistogramDataset();
+    HistogramDataset dataset10 = new HistogramDataset();
+    HistogramDataset dataset11 = new HistogramDataset();
+    HistogramDataset dataset12 = new HistogramDataset();
+    HistogramDataset dataset13 = new HistogramDataset();
+    HistogramDataset dataset14 = new HistogramDataset();
+    HistogramDataset dataset15 = new HistogramDataset();
+    HistogramDataset dataset16 = new HistogramDataset();
+    HistogramDataset dataset17 = new HistogramDataset();
+    HistogramDataset dataset18 = new HistogramDataset();
 
 
     private JFreeChart jfc;
@@ -51,33 +87,13 @@ public class histogram extends javax.swing.JFrame{
     public void ConstructionHistograme()
     {
         Ajouter();
-        histogr.setVisible(true);
-        System.out.println("je suis après le ajouter");
+        CompteurGraphique();
 
-        jfc = ChartFactory.createHistogram("Slow",
-                "Data", "Frequency", (IntervalXYDataset) dataset);
-        jfc2 = ChartFactory.createHistogram("Normal",
-                "Data", "Frequency", (IntervalXYDataset) dataset2);
-        jfc3 = ChartFactory.createHistogram("Aggressive",
-                "Data", "Frequency", (IntervalXYDataset) dataset3);
-        ChartPanel cp = new ChartPanel(jfc);
-        ChartPanel cp2 = new ChartPanel(jfc2);
-        ChartPanel cp3 = new ChartPanel(jfc3);
-
-
-        //histogr.add(cp);
-        //histogr.setLayout(new FlowLayout(FlowLayout.LEFT));
-        //histogr.add(cp);
-        //histogr.add(cp2);
-        //histogr.add(cp3);
-        histogr.setLayout(new GridLayout());
-        histogr.add(cp);
-        histogr.add(cp2);
-        histogr.add(cp3);
-        histogr.revalidate();
-        histogr.repaint();
-        histogr.validate();
+        //histogr.validate();
     }
+
+
+
 
     public void Ajouter(){
         String line;
@@ -132,24 +148,7 @@ public class histogram extends javax.swing.JFrame{
         }
 
 
-        double[] valueAXslow = new double[8000];
-        double[] valueAXnormal = new double[8000];
-        double[] valueAXaggresive = new double[8000];
-        double[] valueAYslow = new double[8000];
-        double[] valueAYnormal = new double[8000];
-        double[] valueAYaggresive = new double[8000];
-        double[] valueAZslow = new double[8000];
-        double[] valueAZnormal = new double[8000];
-        double[] valueAZaggresive = new double[8000];
-        double[] valueGXslow = new double[8000];
-        double[] valueGXnormal = new double[8000];
-        double[] valueGXaggresive = new double[8000];
-        double[] valueGYslow = new double[8000];
-        double[] valueGYnormal = new double[8000];
-        double[] valueGYaggresive = new double[8000];
-        double[] valueGZslow = new double[8000];
-        double[] valueGZnormal = new double[8000];
-        double[] valueGZaggresive = new double[8000];
+
         String aggresive = "AGGRESSIVE";
         String slow ="SLOW";
         String normal = "NORMAL";
@@ -191,17 +190,104 @@ public class histogram extends javax.swing.JFrame{
 
         }
 
+    }
 
-        dataset.addSeries("accXSlow",valueAXslow , 10);
-        dataset2.addSeries("accXNormal",valueAXnormal , 10);
-        dataset3.addSeries("accXAgressive",valueAXaggresive , 10);
-        /*dataset.addSeries("accY",valueAY , 10);
-        dataset.addSeries("accZ",valueAZ , 10);
-        dataset.addSeries("GyroX",valueGX , 10);
-        dataset.addSeries("GyroY",valueGY , 10);
-        dataset.addSeries("GyroZ",valueGZ , 10);*/
+    private void CompteurGraphique()
+    {
+
+
+        if (compteur == 0)
+        {
+            //
+            dataset.addSeries("accXSlow",valueAXslow , 10);
+            dataset2.addSeries("accXNormal",valueAXnormal , 10);
+            dataset3.addSeries("accXAgressive",valueAXaggresive , 10);
+
+            jfc = ChartFactory.createHistogram("Slow",
+                    "Data", "Frequency", (IntervalXYDataset) dataset);
+            jfc2 = ChartFactory.createHistogram("Normal",
+                    "Data", "Frequency", (IntervalXYDataset) dataset2);
+            jfc3 = ChartFactory.createHistogram("Aggressive",
+                    "Data", "Frequency", (IntervalXYDataset) dataset3);
+
+        } else if (compteur==1) {
+            dataset4.addSeries("accYSlow",valueAYslow , 10);
+            dataset5.addSeries("accYNormal",valueAYnormal , 10);
+            dataset6.addSeries("accYAgressive",valueAYaggresive , 10);
+
+            jfc = ChartFactory.createHistogram("Slow",
+                    "Data", "Frequency", (IntervalXYDataset) dataset4);
+            jfc2 = ChartFactory.createHistogram("Normal",
+                    "Data", "Frequency", (IntervalXYDataset) dataset5);
+            jfc3 = ChartFactory.createHistogram("Aggressive",
+                    "Data", "Frequency", (IntervalXYDataset) dataset6);
+
+        } else if (compteur==2) {
+            dataset7.addSeries("accZSlow",valueAYslow , 10);
+            dataset8.addSeries("accZNormal",valueAYnormal , 10);
+            dataset9.addSeries("accZAgressive",valueAYaggresive , 10);
+
+            jfc = ChartFactory.createHistogram("Slow",
+                    "Data", "Frequency", (IntervalXYDataset) dataset7);
+            jfc2 = ChartFactory.createHistogram("Normal",
+                    "Data", "Frequency", (IntervalXYDataset) dataset8);
+            jfc3 = ChartFactory.createHistogram("Aggressive",
+                    "Data", "Frequency", (IntervalXYDataset) dataset9);
+
+        } else if (compteur==3) {
+            dataset10.addSeries("GyroXSlow",valueGXslow , 10);
+            dataset11.addSeries("GyroXNormal",valueGXnormal , 10);
+            dataset12.addSeries("GyroXAgressive",valueGXaggresive , 10);
+
+            jfc = ChartFactory.createHistogram("Slow",
+                    "Data", "Frequency", (IntervalXYDataset) dataset10);
+            jfc2 = ChartFactory.createHistogram("Normal",
+                    "Data", "Frequency", (IntervalXYDataset) dataset11);
+            jfc3 = ChartFactory.createHistogram("Aggressive",
+                    "Data", "Frequency", (IntervalXYDataset) dataset12);
+
+        } else if (compteur==4){
+            dataset13.addSeries("GyroYSlow",valueGYslow , 10);
+            dataset14.addSeries("GyroYNormal",valueGYnormal , 10);
+            dataset15.addSeries("GyroYAgressive",valueGYaggresive , 10);
+
+            jfc = ChartFactory.createHistogram("Slow",
+                    "Data", "Frequency", (IntervalXYDataset) dataset13);
+            jfc2 = ChartFactory.createHistogram("Normal",
+                    "Data", "Frequency", (IntervalXYDataset) dataset14);
+            jfc3 = ChartFactory.createHistogram("Aggressive",
+                    "Data", "Frequency", (IntervalXYDataset) dataset15);
+        } else if (compteur ==5){
+            dataset16.addSeries("GyroZSlow",valueGZslow , 10);
+            dataset17.addSeries("GyroZNormal",valueGZnormal , 10);
+            dataset18.addSeries("GyroZAgressive",valueGZaggresive , 10);
+
+            jfc = ChartFactory.createHistogram("Slow",
+                    "Data", "Frequency", (IntervalXYDataset) dataset16);
+            jfc2 = ChartFactory.createHistogram("Normal",
+                    "Data", "Frequency", (IntervalXYDataset) dataset17);
+            jfc3 = ChartFactory.createHistogram("Aggressive",
+                    "Data", "Frequency", (IntervalXYDataset) dataset18);
+        }
+        //System.out.println(compteur);
+        compteur++;
+        histogr.setVisible(true);
+
+
+        ChartPanel cp = new ChartPanel(jfc);
+        ChartPanel cp2 = new ChartPanel(jfc2);
+        ChartPanel cp3 = new ChartPanel(jfc3);
+        histogr.removeAll();
+        histogr.setLayout(new GridLayout());
+        histogr.add(cp);
+        histogr.add(cp2);
+        histogr.add(cp3);
+        histogr.revalidate();
+        histogr.repaint();
+
 
     }
+
 
     public histogram()
     {
@@ -217,5 +303,18 @@ public class histogram extends javax.swing.JFrame{
         setContentPane(non);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         histogr.setLayout(new FlowLayout());
+        Suivant.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                System.out.println("bouton click");
+                CompteurGraphique();
+            }
+        });
+
+
+
+
     }
 }
